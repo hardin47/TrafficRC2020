@@ -1,0 +1,73 @@
+---
+title: "sunrise and set"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(suncalc)
+library(lubridate)
+```
+
+```{r}
+CAsb <- read.csv("~/gitRepos/teaching/ResearchCircle2020/ca_san_bernardino_2019_08_13.csv")
+str(CAsb)
+```
+
+1.  First I notice two things about the date/time.  (1) they are coded as factors (they should be dates, but at the very minimum, characters), (2) they are separate columns, and they might need to be combined.
+
+NOTICE THE DIFFERENT TYPES OF VARIABLES IN THE COLUMN HEADERS!!!
+
+```{r}
+CAsb <- CAsb %>%
+  dplyr::mutate(datetime = lubridate::ymd_hms(paste(as.character(date), as.character(time))),
+                date2 = lubridate::as_date(lubridate::ymd(as.character(date)))) 
+
+# check to make sure it did what we wanted it to do
+CAsb %>%
+  select(date, date2, time, datetime) %>%
+  head()
+```
+
+2. Next I tried many of the bazillion different functions in R that will calculate the sunrise times.  They each had a very specific format for the date/time required.  Also, many of them had trouble with situations where lat and/or long was missing.  The function `getSunlightTimes` in the package `suncalc` seems to deal well with missing information.
+
+For multiple lat/long/dates, the `data=` argument is required.
+
+```{r}
+temp <- data.frame(date = CAsb$date2, lat = CAsb$lat, lon = CAsb$lng)
+
+getSunlightTimes(data = temp, keep = "sunrise") %>% 
+  head()
+```
+
+3. Next I wrote a function (got this idea from the Stack Overflow page when looking at `sunriset`).
+
+```{r}
+oursunriseset <- function(latitude, longitude, date, direction = c("sunrise", "sunset")) {
+  date.lat.long <- data.frame(date = date, lat = latitude, lon = longitude)
+  if(direction == "sunrise"){
+    getSunlightTimes(data = date.lat.long, keep=direction)$sunrise }else{
+    getSunlightTimes(data = date.lat.long, keep=direction)$sunset  }
+}
+```
+
+4. Let's check to make sure the function works how we think it should.  Remember that we need it to keep only the **one** column associated with the sunrise (or sunset).
+
+```{r}
+oursunriseset(CAsb$lat, CAsb$lng, CAsb$date2, direction = "sunrise") %>% head()
+```
+
+
+5. Let's use it in the mutate function!
+
+```{r}
+CAsb %>%
+  dplyr::mutate(sunrise = oursunriseset(lat, lng, date2, direction = "sunrise"),
+                sunset = oursunriseset(lat, lng, date2, direction = "sunset")) %>%
+  select(date, time, date2, lat, lng, sunrise, sunset) %>%
+  head()
+```
+
+
+
