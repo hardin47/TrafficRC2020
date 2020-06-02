@@ -1,5 +1,5 @@
 
-Final report at https://hardin47.github.io/TrafficRC2020/Report/
+Final report at [https://hardin47.github.io/TrafficRC2020/Report/]
 
 # ResearchCircle2020
 
