@@ -1,3 +1,6 @@
+
+Final report at https://hardin47.github.io/TrafficRC2020/Report/
+
 # ResearchCircle2020
 
 #### Hardin/Sarkis -- Spring 2020
