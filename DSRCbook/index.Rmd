@@ -12,6 +12,17 @@ github-repo: rstudio/bookdown-demo
 description: "This is an exploratory data report on police traffic data."
 ---
 
+```{r eval=FALSE, include = FALSE}
+#install.packages("bookdown")
+# or the development version
+# devtools::install_github("rstudio/bookdown")
+
+setwd("~/gitRepos/teaching/TrafficRC2020/DSRCbook")
+
+bookdown::render_book("index.Rmd", output_dir = "../Report")
+```
+
+
 # Preface
 
 ## Dedication
