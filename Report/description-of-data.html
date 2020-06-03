@@ -747,98 +747,102 @@ X
 <h2><span class="header-section-number">4.1</span> Querying Datasets with RMySQL</h2>
 <p>First import the necesarry packages to work with SQL in R</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">library</span>(XML)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw">library</span>(RMySQL)</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="kw">library</span>(tidyverse)</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="kw">library</span>(knitr)</a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="kw">library</span>(rlist)</a></code></pre></div>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw">library</span>(RMySQL)</a></code></pre></div>
+<pre><code>## Loading required package: DBI</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw">library</span>(knitr)</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw">library</span>(rlist)</a></code></pre></div>
+<pre><code>## Registered S3 method overwritten by &#39;data.table&#39;:
+##   method           from
+##   print.data.table</code></pre>
 <p>Next, setup a connection to the database.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># Connect to database</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">con &lt;-<span class="st"> </span><span class="kw">dbConnect</span>(</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">  <span class="kw">MySQL</span>(), <span class="dt">host =</span> <span class="st">&quot;traffic.st47s.com&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;student&quot;</span>,</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">  <span class="dt">password =</span> <span class="st">&quot;Sagehen47&quot;</span>, <span class="dt">dbname =</span> <span class="st">&quot;traffic&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># Connect to database</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">con &lt;-<span class="st"> </span><span class="kw">dbConnect</span>(</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">  <span class="kw">MySQL</span>(), <span class="dt">host =</span> <span class="st">&quot;traffic.st47s.com&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;student&quot;</span>,</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">  <span class="dt">password =</span> <span class="st">&quot;Sagehen47&quot;</span>, <span class="dt">dbname =</span> <span class="st">&quot;traffic&quot;</span>)</a></code></pre></div>
 <p>Note: If you are looking to modify the database you must use a different username and password that can be acquired through Professor Hardin.</p>
 <p>dbGetQuery returns a dataframe, so storing it in a variable adds that dataframe to the global environment</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">raleigh_df &lt;-<span class="st"> </span>DBI<span class="op">::</span><span class="kw">dbGetQuery</span>(con, <span class="st">&quot;SELECT * FROM NCraleigh LIMIT 15&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">raleigh_df &lt;-<span class="st"> </span>DBI<span class="op">::</span><span class="kw">dbGetQuery</span>(con, <span class="st">&quot;SELECT * FROM NCraleigh LIMIT 15&quot;</span>)</a></code></pre></div>
 <div id="querying-subsets-of-dataset" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> Querying Subsets of dataset</h3>
 <p>Certain scenarios such as running a logistic regression need not every variable from a dataset - only the variables of interest. Moreover, running a logistic regression on every city with all columns is a taxing operation. This is where querying can be useful in selecting portions of the datasets deemed essential.</p>
 <p>The logistic regression called for the race, age, sex, and data variables. The query_data function will takes in a database table name (city_name) and will select the desired variables from that table.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">query_data &lt;-<span class="st"> </span><span class="cf">function</span>(city_name){</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">  <span class="co"># cancenate SQL query string</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">  command &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="st">    </span><span class="kw">paste</span>(<span class="st">&quot;SELECT subject_age, subject_race, subject_sex, date, search_conducted FROM&quot;</span>,</a>
-<a class="sourceLine" id="cb15-5" data-line-number="5">         city_name, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</a>
-<a class="sourceLine" id="cb15-6" data-line-number="6">  <span class="kw">return</span>(DBI<span class="op">::</span><span class="kw">dbGetQuery</span>(con, command))</a>
-<a class="sourceLine" id="cb15-7" data-line-number="7">} </a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co"># Make a list of datasets</span></a>
-<a class="sourceLine" id="cb15-10" data-line-number="10">datasets &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
-<a class="sourceLine" id="cb15-11" data-line-number="11">datasets &lt;-<span class="st"> </span><span class="kw">lapply</span>(datasets_of_interest, query_data)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">query_data &lt;-<span class="st"> </span><span class="cf">function</span>(city_name){</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">  <span class="co"># cancenate SQL query string</span></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3">  command &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="st">    </span><span class="kw">paste</span>(<span class="st">&quot;SELECT subject_age, subject_race, subject_sex, date, search_conducted FROM&quot;</span>,</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5">         city_name, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</a>
+<a class="sourceLine" id="cb18-6" data-line-number="6">  <span class="kw">return</span>(DBI<span class="op">::</span><span class="kw">dbGetQuery</span>(con, command))</a>
+<a class="sourceLine" id="cb18-7" data-line-number="7">} </a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co"># Make a list of datasets</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10">datasets &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb18-11" data-line-number="11">datasets &lt;-<span class="st"> </span><span class="kw">lapply</span>(datasets_of_interest, query_data)</a></code></pre></div>
 </div>
 </div>
 <div id="web-scrapping-and-uploading-datasets" class="section level2">
 <h2><span class="header-section-number">4.2</span> Web Scrapping and Uploading Datasets</h2>
 <p>This section will show the dataset upload process. The first step is to acquire all the RDS weblinks from the Stanford Policing Project Website.</p>
 <p>The code here is written by Professor Sarkis and it will get all the rds files from the stanford policing project website. Then, it stores all the file names into a character string</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">url &lt;-<span class="st"> &quot;https://openpolicing.stanford.edu/data/&quot;</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">doc &lt;-<span class="st"> </span><span class="kw">htmlParse</span>(<span class="kw">readLines</span>(url), <span class="dt">asText=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3">links &lt;-<span class="st"> </span><span class="kw">xpathSApply</span>(doc, <span class="st">&quot;//a/@href&quot;</span>)</a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="kw">free</span>(doc)</a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb16-6" data-line-number="6">all_links &lt;-<span class="st"> </span><span class="kw">as.character</span>(links[<span class="kw">grep</span>(<span class="st">&#39;_.*rds&#39;</span>, links)])</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">url &lt;-<span class="st"> &quot;https://openpolicing.stanford.edu/data/&quot;</span></a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">doc &lt;-<span class="st"> </span><span class="kw">htmlParse</span>(<span class="kw">readLines</span>(url), <span class="dt">asText=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">links &lt;-<span class="st"> </span><span class="kw">xpathSApply</span>(doc, <span class="st">&quot;//a/@href&quot;</span>)</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="kw">free</span>(doc)</a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb19-6" data-line-number="6">all_links &lt;-<span class="st"> </span><span class="kw">as.character</span>(links[<span class="kw">grep</span>(<span class="st">&#39;_.*rds&#39;</span>, links)])</a></code></pre></div>
 <p>One could also get all the dataset file names for a specific state by adding the state’s two character abbreviation e.g.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">california_links &lt;-<span class="st"> </span><span class="kw">as.character</span>(links[<span class="kw">grep</span>(<span class="st">&#39;ca_.*rds&#39;</span>, links)])</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">california_links &lt;-<span class="st"> </span><span class="kw">as.character</span>(links[<span class="kw">grep</span>(<span class="st">&#39;ca_.*rds&#39;</span>, links)])</a></code></pre></div>
 <p>Another optional step is to splice certain links using base R indexing</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co"># subset list to get desired links</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">all_links &lt;-<span class="st"> </span>all_links[<span class="dv">43</span><span class="op">:</span><span class="dv">48</span>]</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">all_links &lt;-<span class="st"> </span>all_links[<span class="op">-</span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># subset list to get desired links</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">all_links &lt;-<span class="st"> </span>all_links[<span class="dv">43</span><span class="op">:</span><span class="dv">48</span>]</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">all_links &lt;-<span class="st"> </span>all_links[<span class="op">-</span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>)]</a></code></pre></div>
 <p>Since the datasets are written to the database using the dbWriteTable function from RMySQL library, logical datatypes get interpreted as character, which will be tedious to deal with in future analysis. Therefore, the convertLogicalToInt function will convert columns that have logical datatypes into doubles (0 and 1).</p>
 <p>convertLogicalToInt function:
 input: dataset
 output: dataset with logical values set to binary</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">convertLogicalToInt &lt;-<span class="st"> </span><span class="cf">function</span>(input_df){</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2">  vars &lt;-<span class="st"> </span><span class="kw">sapply</span>(input_df, class) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="st">  </span><span class="kw">list.which</span>(.<span class="op">==</span><span class="st">&#39;logical&#39;</span>)</a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb19-5" data-line-number="5">  input_df[,vars] &lt;-<span class="st"> </span><span class="kw">sapply</span>(input_df[,vars], as.numeric)</a>
-<a class="sourceLine" id="cb19-6" data-line-number="6">  input_df</a>
-<a class="sourceLine" id="cb19-7" data-line-number="7">  <span class="kw">return</span>(input_df)</a>
-<a class="sourceLine" id="cb19-8" data-line-number="8">}</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">convertLogicalToInt &lt;-<span class="st"> </span><span class="cf">function</span>(input_df){</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">  vars &lt;-<span class="st"> </span><span class="kw">sapply</span>(input_df, class) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="st">  </span><span class="kw">list.which</span>(.<span class="op">==</span><span class="st">&#39;logical&#39;</span>)</a>
+<a class="sourceLine" id="cb22-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5">  input_df[,vars] &lt;-<span class="st"> </span><span class="kw">sapply</span>(input_df[,vars], as.numeric)</a>
+<a class="sourceLine" id="cb22-6" data-line-number="6">  input_df</a>
+<a class="sourceLine" id="cb22-7" data-line-number="7">  <span class="kw">return</span>(input_df)</a>
+<a class="sourceLine" id="cb22-8" data-line-number="8">}</a></code></pre></div>
 <p>Subsequently, dbWriteTable also needs a name for the table, which can parsed out of the weblinks. The getDFName function returns a suitable datatable name.</p>
 <p>getDFName:
 input: name of dataset (this could also be name of link from web scrape)
 output: clean dataset name that includes state and city</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">getDFName &lt;-<span class="st"> </span><span class="cf">function</span>(input_string){</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">  tmp &lt;-<span class="st"> </span><span class="kw">str_split</span>(input_string, <span class="st">&#39;_&#39;</span>, <span class="dt">simplify =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">tmp</a>
-<a class="sourceLine" id="cb20-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb20-5" data-line-number="5">state &lt;-<span class="st"> </span><span class="kw">str_to_upper</span>(tmp[,<span class="dv">2</span>])</a>
-<a class="sourceLine" id="cb20-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb20-7" data-line-number="7"><span class="cf">if</span>(tmp[,<span class="dv">4</span>] <span class="op">!=</span><span class="st"> &quot;2019&quot;</span>){</a>
-<a class="sourceLine" id="cb20-8" data-line-number="8">    cityName &lt;-<span class="st"> </span><span class="kw">paste</span>(tmp[,<span class="dv">3</span>], tmp[,<span class="dv">4</span>], <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb20-9" data-line-number="9">    name &lt;-<span class="st"> </span><span class="kw">paste</span>(state, cityName, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb20-10" data-line-number="10">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb20-11" data-line-number="11">    cityName &lt;-<span class="st"> </span>tmp[,<span class="dv">3</span>]</a>
-<a class="sourceLine" id="cb20-12" data-line-number="12">    name &lt;-<span class="st"> </span><span class="kw">paste</span>(state, cityName, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb20-13" data-line-number="13">}</a>
-<a class="sourceLine" id="cb20-14" data-line-number="14">name</a>
-<a class="sourceLine" id="cb20-15" data-line-number="15"><span class="kw">return</span>(name)</a>
-<a class="sourceLine" id="cb20-16" data-line-number="16">}</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">getDFName &lt;-<span class="st"> </span><span class="cf">function</span>(input_string){</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">  tmp &lt;-<span class="st"> </span><span class="kw">str_split</span>(input_string, <span class="st">&#39;_&#39;</span>, <span class="dt">simplify =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">tmp</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">state &lt;-<span class="st"> </span><span class="kw">str_to_upper</span>(tmp[,<span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb23-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="cf">if</span>(tmp[,<span class="dv">4</span>] <span class="op">!=</span><span class="st"> &quot;2019&quot;</span>){</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8">    cityName &lt;-<span class="st"> </span><span class="kw">paste</span>(tmp[,<span class="dv">3</span>], tmp[,<span class="dv">4</span>], <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb23-9" data-line-number="9">    name &lt;-<span class="st"> </span><span class="kw">paste</span>(state, cityName, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb23-10" data-line-number="10">} <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb23-11" data-line-number="11">    cityName &lt;-<span class="st"> </span>tmp[,<span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb23-12" data-line-number="12">    name &lt;-<span class="st"> </span><span class="kw">paste</span>(state, cityName, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb23-13" data-line-number="13">}</a>
+<a class="sourceLine" id="cb23-14" data-line-number="14">name</a>
+<a class="sourceLine" id="cb23-15" data-line-number="15"><span class="kw">return</span>(name)</a>
+<a class="sourceLine" id="cb23-16" data-line-number="16">}</a></code></pre></div>
 <p>The penultimate step is to read the RDS file and write that to the database using the dbWriteTable function. The results from the two previous functions will serve as arguments for the dbWriteTable function.</p>
 <p>uploadLinksToDatabase:
 input: string link from web scrape
 outout: 0 - indicating that the code finished executing
 This function will take in a RDS link and write the dataset to the database</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">uploadLinksToDatabase &lt;-<span class="st"> </span><span class="cf">function</span>(input_link){</a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">  tmpDF &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="kw">gzcon</span>(<span class="kw">url</span>(input_link)))</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">  tmpDF &lt;-<span class="st"> </span><span class="kw">convertLogicalToInt</span>(tmpDF)</a>
-<a class="sourceLine" id="cb21-4" data-line-number="4">  name&lt;-<span class="st"> </span><span class="kw">getDFName</span>(input_link)</a>
-<a class="sourceLine" id="cb21-5" data-line-number="5">  </a>
-<a class="sourceLine" id="cb21-6" data-line-number="6">  <span class="kw">dbWriteTable</span>(con2, name, tmpDF, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb21-7" data-line-number="7">  <span class="kw">return</span>(<span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb21-8" data-line-number="8">}</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">uploadLinksToDatabase &lt;-<span class="st"> </span><span class="cf">function</span>(input_link){</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">  tmpDF &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="kw">gzcon</span>(<span class="kw">url</span>(input_link)))</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3">  tmpDF &lt;-<span class="st"> </span><span class="kw">convertLogicalToInt</span>(tmpDF)</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">  name&lt;-<span class="st"> </span><span class="kw">getDFName</span>(input_link)</a>
+<a class="sourceLine" id="cb24-5" data-line-number="5">  </a>
+<a class="sourceLine" id="cb24-6" data-line-number="6">  <span class="kw">dbWriteTable</span>(con2, name, tmpDF, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb24-7" data-line-number="7">  <span class="kw">return</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8">}</a></code></pre></div>
 <p>lapply serves as a ‘oneline’ for loop. The argument all_links is a character string of links, which lapply will iterate through and call the function, uploadLinksToDatabase, on each link</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">lapply</span>(all_links, uploadLinksToDatabase)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">lapply</span>(all_links, uploadLinksToDatabase)</a></code></pre></div>
 
 </div>
 </div>
