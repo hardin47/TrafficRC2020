@@ -1,5 +1,4 @@
-
-Final report at [https://hardin47.github.io/TrafficRC2020/Report/]
+Final report at [https://hardin47.github.io/TrafficRC2020/Report/](https://hardin47.github.io/TrafficRC2020/Report/)
 
 # ResearchCircle2020
 
@@ -8,16 +7,16 @@ Final report at [https://hardin47.github.io/TrafficRC2020/Report/]
 
 
 Data Science Research Circle at Pomona College in Spring 2020
-* supervised by Jo Hardin[https://github.com/hardin47] &amp; Ghassan Sarkis[https://github.com/taroub]
+* supervised by [Jo Hardin](https://github.com/hardin47) &amp; [Ghassan Sarkis](https://github.com/taroub)
 
 * undergraduate researchers
-  - Amber Lee (‘22)[https://github.com/Amber-Patricia-Lee]
-  - Arm Wonghirundacha (‘22)[https://github.com/armwong9]
-  - Emma Godfrey (‘21)[https://github.com/emmacgodfrey]
-  - Ethan Ong (‘21)[https://github.com/eruong]
-  - Ivy Yuan (‘21)[https://github.com/iyyuan1208]
-  - Oliver Chang (‘22)[https://github.com/oliverc1623]
-  - Will Gray (‘22)[https://github.com/wega2018] 
+  - [Amber Lee (‘22)](https://github.com/Amber-Patricia-Lee)
+  - [Arm Wonghirundacha (‘22)](https://github.com/armwong9)
+  - [Emma Godfrey (‘21)](https://github.com/emmacgodfrey)
+  - [Ethan Ong (‘21)](https://github.com/eruong)
+  - [Ivy Yuan (‘21)](https://github.com/iyyuan1208)
+  - [Oliver Chang (‘22)](https://github.com/oliverc1623)
+  - [Will Gray (‘22)](https://github.com/wega2018) 
 
 
 ## description
